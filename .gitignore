@@ -26,3 +26,11 @@
 *.exe
 *.out
 *.app
+
+# Emacs backup
+*~
+
+# testing output
+logtest.mmap
+logtest.write
+test.logging
