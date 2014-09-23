@@ -1,6 +1,6 @@
 #include "logging.h"
 #include <fcntl.h>    /* O_RDWR */
-#include <unistd.h>   /* open(), creat(), ftruncate */
+#include <unistd.h>   /* open(), creat(), ftruncate, fsync */
 #include <cstring>    /* memcpy */
 #include <stdio.h>    /* perror, printf, sprintf */
 #include "mkpath.h"
@@ -52,13 +52,23 @@ int logFile_t::open ( ) {
   return 0;
 }
 
+int logFile_t::flush () {
+  if ( this->fd >= 0 && ::fsync ( this->fd )) {
+    printf("logFile_t::close: error fsyncing file %s.\n", 
+	   this->filename.c_str() );
+    handle_error("fsync");
+    return -1;
+  }
+  return 0;
+}
+
 /// also munmaps.
 int logFile_t:: close () {
   if ( this->munmap() ) {
     printf( "logFile_t::close: munmap error.\n" );
     return -1;
   }
-
+  
   if ( this->fd < 0 ) {
     // printf("logFile_t::close: file %s is already closed.\n", 
     // 	   filename.c_str());
@@ -71,6 +81,10 @@ int logFile_t:: close () {
 	   this->filename.c_str(), this->bytes_written_so_far );
     return -1;
   }
+
+  // I am not sure if this is needed, but it doesn't hurt.
+  this->flush();
+
   if ( ::close ( this->fd ) ) {
     printf("logFile_t::close: error closing file %s after %ld bytes written.\n", 
 	   filename.c_str(), this->bytes_written_so_far );
@@ -237,10 +251,16 @@ class TwoCharArrays {
 };
 
 int main(int argc, char** argv){
+  if (argc != 2) {
+    printf("usage: %s testfile-name\n", argv[0]);
+    return -1;
+  }
+  string fname = argv[1];
+
   int n = 1000000;
   char buff[100];
-  logFile_t log("logtest.mmap"); 
-  int fd = open("logtest.write", O_RDWR | O_CREAT | O_TRUNC, 0777);
+  logFile_t log(fname+".mmap"); 
+  int fd = open( (fname+".write").c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
   for (int i = 0; i< n; i++) {
     sprintf(buff, "%d\n", i);
     if (log.write ( buff, strlen(buff) )){
