@@ -40,8 +40,8 @@ Example use:
        plainLogger.write ( &r, sizeof(r) );
      
        // write a record to the fancy logfile.
-       logger_t < class record_t > fancyLogger ( fname + ".fancy" );
-	   // or logger_t < class record_t > fancyLogger; fancyLogger.init ( fname + ".fancy" );
+       logger_t < record_t > fancyLogger ( fname + ".fancy" );
+	   // or logger_t < record_t > fancyLogger; fancyLogger.init ( fname + ".fancy" );
        fancyLogger ( r );
      
      }
