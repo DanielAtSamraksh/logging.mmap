@@ -4,13 +4,11 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <string>
-#include <map>
 #include <stdio.h>
 
 #define PATH_SIZE 500
 
 using std::string;
-using std::map;
 
 
 class logFile_t { 
@@ -26,7 +24,8 @@ class logFile_t {
   logFile_t ( string filename );
 
   /// write buffer to the logfile, no need to open first
-  int write ( const char* msg, unsigned len );
+  /* int write ( const char* msg, unsigned len ); */
+  int write ( const void* msg, unsigned len );
 
   ~logFile_t ();
 

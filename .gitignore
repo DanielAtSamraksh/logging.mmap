@@ -31,7 +31,7 @@
 *~
 
 # testing output
-logtest.mmap
-logtest.write
+logtest.*
 test.logger
 test.logfile
+test.example
