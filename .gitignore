@@ -33,4 +33,5 @@
 # testing output
 logtest.mmap
 logtest.write
-test.logging
+test.logger
+test.logfile

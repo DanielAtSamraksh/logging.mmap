@@ -1,4 +1,4 @@
-#include "logging.h"
+#include "logfile.h"
 #include <fcntl.h>    /* O_RDWR */
 #include <unistd.h>   /* open(), creat(), ftruncate, fsync */
 #include <cstring>    /* memcpy */
@@ -40,13 +40,13 @@ int logFile_t::open ( ) {
     return 0;
   }
   if ( mkpathto ( this->filename.c_str() ) ) {
-    printf("log_t::open: error in mkpathto.\n");
+    printf("logFile_t::open: error in mkpathto.\n");
     return -1;
   }
   this->fd = ::open( this->filename.c_str() ,  
 		     O_RDWR | O_CREAT, 0666);
   if (this->fd < 0) {
-    printf("log_t::open: error opening %s.\n", this->filename.c_str() );
+    printf("logFile_t::open: error opening %s.\n", this->filename.c_str() );
     return -1;
   }
   return 0;
@@ -136,20 +136,15 @@ int logFile_t::mmap(off_t len) {
   // 	  len, this->bytes_written_so_far );
 
   if ( this->mmap_start_addr ) { // need to close file and munmap
-    if ( this->munmap() ) {
-      printf("log_t::mmap: unmap error");
-      handle_error("munmap");
-      return -1;
-    }
     if ( this->close() ) {
-      printf("log_t::mmap: close error");
+      printf("logFile_t::mmap: close error");
       handle_error("mmap");
       return -1;
     }
   }
 
   if ( this->open() ) {
-    printf("log_t::mmap: open error");
+    printf("logFile_t::mmap: open error");
     handle_error("open");
     return -1;
   }
@@ -161,18 +156,18 @@ int logFile_t::mmap(off_t len) {
   off_t pa_len = (((extra_length + len) / page_size) + 1) * page_size;
 
   if ( pa_len && lseek (this->fd, pa_offset + pa_len - 1, SEEK_SET) == -1) {
-    printf("log_t::mmap: lseek error");
+    printf("logFile_t::mmap: lseek error");
     return -1;
   }
   if (::write (fd, "", 1) != 1) {
-    printf("log_t::mmap: write error");
+    printf("logFile_t::mmap: write error");
     return -1;
   }
   this->mmap_start_addr = (char*) ::mmap (0, pa_len,
 					  PROT_READ | PROT_WRITE, MAP_SHARED, 
 					  fd, pa_offset);
   if ( this->mmap_start_addr == (caddr_t) -1 ) { 
-    printf("log_t::mmap: mmap error");
+    printf("logFile_t::mmap: mmap error");
     return 1;
   }
   this->mmap_offset = pa_offset;
@@ -181,74 +176,12 @@ int logFile_t::mmap(off_t len) {
 }
 
 
-log_t::log_t () {
-  strncpy(path, "", sizeof(""));
-}
-
-log_t::log_t ( unsigned nodes,
-	   const char*  motionModel,
-	   unsigned seconds,
-	   double metersPerSecond, // should be average link life
-	   double nodesPerMeterSquared
-	   ) {
-  snprintf(path, PATH_SIZE, "%u/%s/%u/%f/%f/", 
-	   nodes, motionModel, seconds, metersPerSecond, nodesPerMeterSquared);
-}
-
-log_t::~log_t() {
-  logFiles_t::iterator i;
-  for (i = logFiles.begin(); i != logFiles.end(); i++) {
-    close (i->first);
-  }
-}
- 
-int log_t::open ( const char* name, unsigned bytes ) {
-  // bailout if the log is already open
-  if (logFiles.find (name) != logFiles.end()) return 0;
-  logFiles[name] = logFile_t(name);
-  return 0;
-}
-
-int log_t::write ( const char* name, const char* buf, unsigned bytes ) {
-  if (logFiles.find (name) == logFiles.end()) {
-    printf("log_t::write: Error: log %s has not been opened.\n", name);
-    return -1;
-  }
-  if (logFiles[name].write(buf, bytes)) {
-    printf("log_t::write: Error.\n");
-    return -1;
-  }
-  return 0;
-}
-
-int log_t::close ( string name) {
-  close(name.c_str());
-  return 0;
-}
-
-int log_t::close ( const char* name) {
-  if (logFiles.find (name) == logFiles.end()) {
-    printf("log_t::close: log %s is already closed.\n", name);
-    return 0;
-  }
-  // close(logFiles[name].fd); // this is done in logFile_t
-  logFiles.erase (name);
-  return 0;
-}
-
-
-
 #ifdef TEST_LOGGING
 
 /* Test this by running: 
- > g++ -DTEST_LOGGING -I${TUS} -I${TUS}/Include -I. mkpath.cpp logging.cpp && ./a.out
+ > g++ -DTEST_LOGGING -I${TUS} -I. mkpath.cpp logging.cpp && ./a.out
 
 */
-
-
-class TwoCharArrays {
-  char s1[100], s2[50];
-};
 
 int main(int argc, char** argv){
   if (argc != 2) {

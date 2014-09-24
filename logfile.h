@@ -1,5 +1,5 @@
-#ifndef LOGGING_H_
-#define LOGGING_H_
+#ifndef LOGFILE_H_
+#define LOGFILE_H_
 
 #include <sys/types.h>
 #include <sys/mman.h>
@@ -54,26 +54,4 @@ class logFile_t {
 
 };
 
-typedef map< string , logFile_t > logFiles_t;
-
-class log_t {
- public:
-  log_t ();
-  log_t ( unsigned nodes,
-	  const char*  motionModel,
-	  unsigned seconds,
-	  double metersPerSecond, // should be average link life
-	  double nodesPerMeterSquared
-	  );
-  ~log_t ();
-  int open ( const char* name, unsigned bytes ); 
-  int write ( const char* name, const char* buf, unsigned bytes );
-  int close ( const char* name);
-  int close ( string name);
- private: 
-  char path[PATH_SIZE];
-  char charBuffer[PATH_SIZE];
-  logFiles_t logFiles; 
-};
-
-#endif /* LOGGING_H_ */
+#endif /* LOGFILE_H_ */
