@@ -12,9 +12,7 @@ Example use:
    
    // example of how to use logfile and logger
    
-   #include "logfile.h"
-   
-   #include "logger.h"
+   #include "log.h"
    
    // struct record_t {
    class record_t {

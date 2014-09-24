@@ -6,7 +6,6 @@
 #include <string>
 #include <stdio.h>
 
-#define PATH_SIZE 500
 
 using std::string;
 

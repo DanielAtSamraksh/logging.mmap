@@ -3,7 +3,7 @@ testfile = logtest
 
 all: test
 
-test: test.logfile test.logger test.example
+test: test.logfile test.logger test.example test.example2
 
 test.logger: logfile.o logger.h test_logger.cpp 
 	g++ test_logger.cpp logfile.o mkpath.o -o $@
@@ -35,5 +35,12 @@ test.example: example.cpp mkpath.o logfile.o logger.h
 	rm ${testfile}.fancy ${testfile}.plain
 	@echo $@ OK; echo
 
+test.example2: example2.cpp log.h
+	g++ example2.cpp  -o $@
+	./$@ ${testfile}
+	cmp ${testfile}.fancy ${testfile}.plain
+	rm ${testfile}.fancy ${testfile}.plain
+	@echo $@ OK; echo
+
 clean: 
-	rm -f *.o test.logfile test.logger test.example ${testfile}.*
+	rm -f *.o test.logfile test.logger test.example test.example2 ${testfile}.* *.out
