@@ -35,11 +35,13 @@ Example use:
        r.i = 1; r.j = 2;
      
        // write a buffer to the plain logfile.
+       logFile_t plainLogger ( fname + ".plain" ); // alternative declaration
        logFile_t plainLogger;
        plainLogger.init(fname + ".plain");
        plainLogger.write(&r, sizeof(r));
      
        // write a record to the fancy logfile.
+       // logger_t < class record_t > fancyLogger(fname + ".fancy"); // alternative declaration
        logger_t < class record_t > fancyLogger;
        fancyLogger.init(fname + ".fancy");
        fancyLogger(r);
