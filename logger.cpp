@@ -7,9 +7,16 @@
 
 template < class S > logger_t<S>::logger_t () {}
 template < class S > logger_t<S>::logger_t ( string p ) { init (p); }
-template < class S > void logger_t<S>::init ( string p ) { this->log.init(p); }
+template < class S > void logger_t<S>::init ( string p ) { 
+  this->log.init(p); 
+  this->logfile_name = p;
+}
 template < class S > int logger_t<S>::operator() ( const S* s ) { 
-  return this->log.write( (const char *) s, sizeof(s) );
+  if ( logfile_name.size() ) {
+    return this->log.write( (const char *) s, sizeof(*s) );
+    // we want size of s, not S, in case the size of the object is variable.
+  }
+  return 0; // not initialized, fail silently.
 }
 
 #ifdef TEST_LOGGER
@@ -19,8 +26,13 @@ template < class S > int logger_t<S>::operator() ( const S* s ) {
 
 */
 
-struct my_struct {
-  char s[100];
+struct my_string {
+  // int i;
+  char s[10];
+};
+
+struct my_ints {
+  int i, j;
 };
 
 int main(int argc, char** argv){
@@ -32,18 +44,36 @@ int main(int argc, char** argv){
   
   string fname = argv[1];
 
-  my_struct s;
-  int n = 1000000;
-  logger_t <my_struct> log(fname+".mmap"); 
-  int fd = open( (fname+".write").c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+  my_string s;
+  my_ints ii;
+
+  int n = 10;
+
+  logger_t <my_string> logstring(fname+".string.mmap"); 
+  int fdstring = open( (fname+".string.write").c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+
+  logger_t <my_ints> logints(fname+".ints.mmap"); 
+  int fdints = open( (fname+".ints.write").c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+
   for (int i = 0; i< n; i++) {
-    sprintf((char*) &(s.s), "%-99d\n", i);
-    if ( log ( &s ) ) {
+    snprintf((char*) &(s.s), 10, "%8d\n", i);
+    if ( logstring ( &s ) ) {
       return 1;
     }
-    write ( fd, (const void*) &s, sizeof(s) );
+    // write ( fd, (const void*) &s, sizeof(s) ); 
+    write ( fdstring, &s, sizeof(s) );
+
+    ii.i = ii.j = i;
+    if ( logints ( &ii ) ) {
+      return 1;
+    }
+    // write ( fd, (const void*) &s, sizeof(s) ); 
+    write ( fdints, &ii, sizeof(ii) );
+
+    
   }
-  close(fd);
+  close(fdstring);
+  close(fdints);
 }
 
 #endif

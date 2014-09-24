@@ -13,6 +13,7 @@ class logger_t {
   void init ( string _path );
   int operator() ( const S* s ); 
  private:
+  string logfile_name;
   logFile_t log;
 };
 

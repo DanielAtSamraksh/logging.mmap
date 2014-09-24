@@ -1,19 +1,32 @@
 
-testfile = logfiletest
+testfile = logtest
 
 all: test
 
 test: test.logger
-	./test.logging ${testfile}
+
+test.logger: logger 
+	./$@ ${testfile}
+	@# echo extra >> ${testfile}.write # test by inducing an error
+	ls -l ${testfile}.*
+	cmp ${testfile}.string.write ${testfile}.string.mmap
+	cmp ${testfile}.ints.write ${testfile}.ints.mmap
+	rm ${testfile}*.write ${testfile}*.mmap
+	@echo $@ OK
+
+test.logfile: logfile
+	./$@ ${testfile}
 	@# echo extra >> ${testfile}.write # test by inducing an error
 	cmp ${testfile}.write ${testfile}.mmap
 	rm ${testfile}.write ${testfile}.mmap
-	@echo OK
+	@echo $@ OK
 
-test.logfile: mkpath.o logfile.cpp logfile.h
+
+
+logfile: mkpath.o logfile.cpp logfile.h
 	g++ -DTEST_LOGFILE logfile.cpp mkpath.o -o test.logfile
 
-test.logger: mkpath.o logfile.o logger.cpp logger.h
+logger: mkpath.o logfile.o logger.cpp logger.h
 	g++ -DTEST_LOGGER logger.cpp logfile.o mkpath.o -o test.logger
 
 mkpath.o: mkpath.h mkpath.cpp
