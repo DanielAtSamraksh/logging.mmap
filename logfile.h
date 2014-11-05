@@ -9,6 +9,8 @@
 
 using std::string;
 
+/// logFile_t ( "path/to/logfile" ):  create a logfile
+/// write ( void *buf, unsigned bytes ): write the buffer to the logfile
 
 class logFile_t { 
  public:
@@ -22,8 +24,8 @@ class logFile_t {
   /// Construct without a filename. Object is ready to use.
   logFile_t ( string filename );
 
-  /// write buffer to the logfile, no need to open first
-  /* int write ( const char* msg, unsigned len ); */
+  /// write buffer to the logfile, no need to open first, return
+  /// number of bytes written or negative on error.
   int write ( const void* msg, unsigned len );
 
   ~logFile_t ();

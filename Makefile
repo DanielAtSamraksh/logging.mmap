@@ -3,6 +3,40 @@ testfile = logtest
 
 all: test
 
+mkpath: mkpath.h mkpath.cpp
+	g++ -D TEST_MKPATH mkpath.cpp -o test_mkpath
+
+test_mkpath: mkpath test_mkpath.sh
+	./test_mkpath.sh
+	@echo $@ OK
+
+logfile: logfile.h logfile.cpp mkpath.cpp
+	g++ -D TEST_LOGFILE -o test_logfile logfile.cpp mkpath.cpp
+
+test_logfile: logfile test_logfile.sh
+	./test_logfile.sh
+	@echo $@ OK
+
+logger: logfile.h logfile.cpp mkpath.cpp logger.h logger.cpp
+	g++ -D TEST_LOGGER -o test_logger mkpath.cpp logfile.cpp logger.cpp
+
+test_logger: logger test_logger.sh
+	./test_logfile.sh
+	@echo $@ OK
+
+log.h: mkpath.h mkpath.cpp logfile.h logfile.cpp logger.h
+	cat $^ > $@
+	@echo "$@ OK"
+
+test_log.h: test_log
+	@echo "$@ OK"
+
+test_log: log.h test_log.cpp test_log.sh
+	@echo "Testing $@"
+	g++ test_log.cpp -o test_log
+	./test_log.sh
+	@echo "$@ OK"
+
 test: test.logfile test.logger test.example test.example2
 
 test.logger: logfile.o logger.h test_logger.cpp 

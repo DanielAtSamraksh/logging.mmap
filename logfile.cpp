@@ -1,4 +1,6 @@
+
 #include "logfile.h"
+#include <cstdlib>    /* exit */
 #include <fcntl.h>    /* O_RDWR */
 #include <unistd.h>   /* open(), creat(), ftruncate, fsync */
 #include <cstring>    /* memcpy */
@@ -112,7 +114,7 @@ int logFile_t::write(const void* msg, unsigned len) {
   return 0;
 };
 
-/// Return 0 on success.
+/// Return 0 on success. This allows multiple error codes. There are many ways to screw up.
 int logFile_t::munmap() {
   if ( this->mmap_size >= 0 
        && ::munmap ( this->mmap_start_addr, this->mmap_size )) {
@@ -156,7 +158,8 @@ int logFile_t::mmap(off_t len) {
   off_t extra_length = this->bytes_written_so_far - pa_offset;
   off_t pa_len = (((extra_length + len) / page_size) + 1) * page_size;
 
-  if ( pa_len && lseek (this->fd, pa_offset + pa_len - 1, SEEK_SET) == -1) {
+  if ( pa_len &&
+       lseek (this->fd, pa_offset + pa_len - 1, SEEK_SET) == -1) {
     printf("logFile_t::mmap: lseek error");
     return -1;
   }
@@ -164,9 +167,10 @@ int logFile_t::mmap(off_t len) {
     printf("logFile_t::mmap: write error");
     return -1;
   }
-  this->mmap_start_addr = (char*) ::mmap (0, pa_len,
-					  PROT_READ | PROT_WRITE, MAP_SHARED, 
-					  fd, pa_offset);
+  this->mmap_start_addr = (char*) ::mmap (
+    0, pa_len,
+    PROT_READ | PROT_WRITE, MAP_SHARED, 
+    fd, pa_offset);
   if ( this->mmap_start_addr == (caddr_t) -1 ) { 
     printf("logFile_t::mmap: mmap error");
     return 1;
@@ -175,5 +179,31 @@ int logFile_t::mmap(off_t len) {
   this->mmap_size = pa_len;
   return 0;
 }
+
+#ifdef TEST_LOGFILE
+
+#include <iostream>
+using std::getline;
+using std::cout;
+using std::cin;
+
+int main(int argc, char **argv) {
+  if (argc != 2) {
+    printf("Usage: %s directory_name < inputfile \n", argv[0]);
+    exit (1);
+  }
+
+  logFile_t logfile ( argv[1] );
+
+  for ( string line; getline( cin, line ); ) {
+    line += "\n"; // newline gets stripped with getline
+    logfile.write ( line.c_str(), line.size() );
+  }
+  
+  return 0;
+}
+
+
+#endif // TEST_LOGFILE
 
 

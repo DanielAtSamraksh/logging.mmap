@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
   plainLogger.write(&r, sizeof(r));
 
   // write a record to the fancy logfile.
-  logger_t < class record_t > fancyLogger;
+  struct_logger_t < class record_t > fancyLogger;
   fancyLogger.init(fname + ".fancy");
   fancyLogger(r);
 

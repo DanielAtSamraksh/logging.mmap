@@ -5,4 +5,4 @@ int mkpath(const char *path);
 int mkpathto(const char *path);
 // int mkpath(const char *path, mode_t mode);
 
-#endif
+#endif // MKPATH_H_

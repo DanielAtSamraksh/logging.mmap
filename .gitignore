@@ -36,3 +36,8 @@ test.logger
 test.logfile
 test.example
 test.example2
+logfile.output
+test_log
+test_logger
+test_mkpath
+testdata
