@@ -24,8 +24,9 @@ test_logger: logger test_logger.sh
 	./test_logfile.sh
 	@echo $@ OK
 
-log.h: mkpath.h mkpath.cpp logfile.h logfile.cpp logger.h
-	cat $^ > $@
+log.h: mkpath.h mkpath.cpp logfile.h logfile.cpp logger.h Makefile
+	cat mkpath.h mkpath.cpp logfile.h logfile.cpp logger.h |\
+	grep -v mkpath.h | grep -v logfile.h | grep -v logger.h > $@
 	@echo "$@ OK"
 
 test_log.h: test_log

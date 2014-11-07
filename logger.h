@@ -39,7 +39,7 @@ struct struct_logger_t : logger_base_t {
     this->init( path );
   };
   int operator() ( const S *s ) {
-    this->operator() ( *s );
+    return this->operator() ( *s );
   };
   int operator() ( const S &s ) {
     this->check();

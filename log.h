@@ -135,13 +135,11 @@ class logFile_t {
 
 #endif /* LOGFILE_H_ */
 
-#include "logfile.h"
 #include <cstdlib>    /* exit */
 #include <fcntl.h>    /* O_RDWR */
 #include <unistd.h>   /* open(), creat(), ftruncate, fsync */
 #include <cstring>    /* memcpy */
 #include <stdio.h>    /* perror, printf, sprintf */
-#include "mkpath.h"
 
 // #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while (0)
 #define handle_error(msg) do { perror(msg); } while (0)
@@ -351,7 +349,6 @@ int main(int argc, char **argv) {
 #include <stdio.h>    /* perror, printf, sprintf */
 #include <cstdlib>    /* exit */
 
-#include "logfile.h"
 
 using std::string;
 
@@ -384,7 +381,7 @@ struct struct_logger_t : logger_base_t {
     this->init( path );
   };
   int operator() ( const S *s ) {
-    this->operator() ( *s );
+    return this->operator() ( *s );
   };
   int operator() ( const S &s ) {
     this->check();
