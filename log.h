@@ -6,6 +6,9 @@ int mkpathto(const char *path);
 // int mkpath(const char *path, mode_t mode);
 
 #endif // MKPATH_H_
+#ifndef MK_PATH_CPP
+#define MK_PATH_CPP
+
 #include <sys/stat.h>
 #include <string.h>
 #include <stdlib.h>
@@ -77,6 +80,7 @@ int main(int argc, char **argv) {
 }
 
 #endif /* TEST */
+#endif //  MK_PATH_CPP
 #ifndef LOGFILE_H_
 #define LOGFILE_H_
 
@@ -134,6 +138,8 @@ class logFile_t {
 };
 
 #endif /* LOGFILE_H_ */
+#ifndef LOGFILE_CPP
+#define LOGFILE_CPP
 
 #include <cstdlib>    /* exit */
 #include <fcntl.h>    /* O_RDWR */
@@ -340,6 +346,7 @@ int main(int argc, char **argv) {
 
 #endif // TEST_LOGFILE
 
+#endif // LOGFILE_CPP
 
 #ifndef LOGGER_H_
 #define LOGGER_H_

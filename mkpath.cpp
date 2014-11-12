@@ -1,3 +1,6 @@
+#ifndef MK_PATH_CPP
+#define MK_PATH_CPP
+
 #include <sys/stat.h>
 #include <string.h>
 #include <stdlib.h>
@@ -69,3 +72,4 @@ int main(int argc, char **argv) {
 }
 
 #endif /* TEST */
+#endif //  MK_PATH_CPP

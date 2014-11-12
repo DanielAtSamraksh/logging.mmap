@@ -1,3 +1,5 @@
+#ifndef LOGFILE_CPP
+#define LOGFILE_CPP
 
 #include "logfile.h"
 #include <cstdlib>    /* exit */
@@ -206,4 +208,5 @@ int main(int argc, char **argv) {
 
 #endif // TEST_LOGFILE
 
+#endif // LOGFILE_CPP
 
