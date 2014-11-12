@@ -38,7 +38,7 @@ test_log: log.h test_log.cpp test_log.sh
 	./test_log.sh
 	@echo "$@ OK"
 
-test: test.logfile test.logger test.example test.example2
+test: log.h test.logfile test.logger test.example test.example2 Makefile
 
 test.logger: logfile.o logger.h test_logger.cpp Makefile
 	g++ test_logger.cpp logfile.o mkpath.o -o $@
