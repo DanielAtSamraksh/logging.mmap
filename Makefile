@@ -40,12 +40,15 @@ test_log: log.h test_log.cpp test_log.sh
 
 test: test.logfile test.logger test.example test.example2
 
-test.logger: logfile.o logger.h test_logger.cpp 
+test.logger: logfile.o logger.h test_logger.cpp Makefile
 	g++ test_logger.cpp logfile.o mkpath.o -o $@
 	./$@ ${testfile}
 	ls -l ${testfile}.*
 	cmp ${testfile}.string.write ${testfile}.string.mmap
 	cmp ${testfile}.ints.write ${testfile}.ints.mmap
+	cmp ${testfile}.repr.write ${testfile}.repr.mmap
+	/bin/echo -e 'struct my_repr_t {\n  int i;\n  char s[10];' |\
+	  diff - ${testfile}.repr.mmap.repr
 	rm ${testfile}*.write ${testfile}*.mmap
 	@echo $@ OK; echo
 

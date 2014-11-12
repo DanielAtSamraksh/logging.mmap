@@ -374,6 +374,7 @@ class logger_base_t {
   logFile_t log;
 };
 
+/// Logs a struct or a class. Every call to log expects a struct.
 template < class S >
 struct struct_logger_t : logger_base_t {
   struct_logger_t (){};
@@ -389,6 +390,7 @@ struct struct_logger_t : logger_base_t {
   };
 };
 
+/// Logs a string.
 struct logger_t : logger_base_t {
   logger_t (){};
   logger_t ( string path ){
@@ -396,6 +398,28 @@ struct logger_t : logger_base_t {
   };
   int operator() ( const string s ) {
     return this->log.write ( s.c_str(), s.size() );
+  };
+};
+
+/// Logs a struct, but also logs the struct representation, stored in the struct's repr method.
+template < class S >
+struct struct_logger_repr_t : logger_base_t {
+  struct_logger_repr_t (){};
+  struct_logger_repr_t ( string path ){
+    this->init( path );
+  };
+  void init ( string path ) {
+    logger_t repr ( path + ".repr" );
+    repr ( S::repr() ); // class must have a repr method
+    this->log.init(path); 
+    this->logfile_name = path;
+  };
+  int operator() ( const S *s ) {
+    return this->operator() ( *s );
+  };
+  int operator() ( const S &s ) {
+    this->check();
+    return this->log.write ( &s, sizeof (s) );
   };
 };
 
