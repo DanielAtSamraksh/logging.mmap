@@ -39,5 +39,6 @@ test.example2
 logfile.output
 test_log
 test_logger
+test_logfile
 test_mkpath
 testdata

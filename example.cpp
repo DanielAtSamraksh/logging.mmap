@@ -5,6 +5,12 @@
 
 #include "logger.h"
 
+#include "logfile.h"
+
+#include "logger.h"
+
+
+
 // struct record_t {
 class record_t {
 public:
