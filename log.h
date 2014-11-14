@@ -61,7 +61,6 @@ inline int mkpath ( const char *path ) {
 #include <unistd.h>   /* open(), creat(), ftruncate, fsync */
 #include <cstring>    /* memcpy */
 #include <stdio.h>    /* perror, printf, sprintf */
-#include "mkpath.h"
 
 #include <sys/types.h>
 #include <sys/mman.h>
@@ -274,7 +273,6 @@ class logFile_t {
 #include <stdio.h>    /* perror, printf, sprintf */
 #include <cstdlib>    /* exit */
 
-#include "logfile.h"
 
 using std::string;
 
