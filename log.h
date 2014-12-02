@@ -91,6 +91,8 @@ class logFile_t {
     this->mmap_size = 0;
     this->mmap_offset = 0;
     this->bytes_written_so_far = 0;
+    this->page_size = sysconf(_SC_PAGE_SIZE);
+
   };
 
   /// Construct without a filename. Object is ready to use.
@@ -170,17 +172,18 @@ class logFile_t {
 
   int fd;
 
+  /** all sizes in bytes. */
   off_t bytes_written_so_far;	/** total bytes written so far */
   char* mmap_start_addr;	/** address of mmaped region */
   off_t mmap_size;		/** the size of the mmapped region */
   off_t mmap_offset;		/** offset in the file where mmapped
 				    region begins */
+  off_t page_size;              /** page size */ 
 
   int mmap ( off_t len )  {
-    if (this->bytes_written_so_far 
-	+ len < this->mmap_offset + this->mmap_size ) { 
-      // there is enough room
-      return 0;
+    if (this->bytes_written_so_far + len
+	< this->mmap_offset + this->mmap_size ) { 
+      return 0;      // there is enough room
     }
     // printf( "logFile_t::mmap(%ld): mmapping after writing %ld bytes\n", 
     // 	  len, this->bytes_written_so_far );
@@ -199,31 +202,27 @@ class logFile_t {
       return -1;
     }
   
-    off_t page_size = sysconf(_SC_PAGE_SIZE);
-    // po_ means page-aligned, assume page size is power of two
-    off_t pa_offset = this->bytes_written_so_far & ~(page_size - 1);
-    off_t extra_length = this->bytes_written_so_far - pa_offset;
-    off_t pa_len = (((extra_length + len) / page_size) + 1) * page_size;
-
-    if ( pa_len &&
-	 lseek (this->fd, pa_offset + pa_len - 1, SEEK_SET) == -1) {
+    off_t start_page = this->bytes_written_so_far / this->page_size;
+    off_t stop_page = ( this->bytes_written_so_far + len - 1 ) / this->page_size + 1;
+    if ( start_page >= stop_page ) { printf( "Page calculation is wrong." ); exit (1); }
+    this->mmap_size = ( stop_page - start_page ) * this->page_size;
+    this->mmap_offset = start_page * this->page_size;
+    if ( lseek (this->fd, stop_page * this->page_size - 1, SEEK_SET) < 0 ) {
       printf("logFile_t::mmap: lseek error");
       return -1;
     }
     if (::write (fd, "", 1) != 1) {
-      printf("logFile_t::mmap: write error");
+      printf("logFile_t::mmap: write error at end of file");
       return -1;
     }
     this->mmap_start_addr = (char*) ::mmap (
-      0, pa_len,
+      0, this->mmap_size,
       PROT_READ | PROT_WRITE, MAP_SHARED, 
-      fd, pa_offset);
+      fd, this->mmap_offset);
     if ( this->mmap_start_addr == (caddr_t) -1 ) { 
       printf("logFile_t::mmap: mmap error");
       return 1;
     }
-    this->mmap_offset = pa_offset;
-    this->mmap_size = pa_len;
     return 0;
   };
 
